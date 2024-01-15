@@ -55,3 +55,40 @@ describe('api/', () => {
     .expect(404)
   })
 })
+
+describe('api/articles/:article_id', () => {
+  test('GET 200: returns an article object by article ID', () => {
+    return request(app)
+    .get('/api/articles/1')
+    .expect(200).then(({body})=> {
+      const article = body.article 
+  
+      expect(typeof article ).toBe('object')
+      expect(Array.isArray(article)).toBe(false)
+
+        expect(article).toHaveProperty('author')
+        expect(article).toHaveProperty('title')
+        expect(article).toHaveProperty('article_id')
+        expect(article).toHaveProperty('body')
+        expect(article).toHaveProperty('topic')
+        expect(article).toHaveProperty('created_at')  
+        expect(article).toHaveProperty('votes')
+        expect(article).toHaveProperty('article_img_url')  
+    })
+  })
+  test('GET 404: returns a 404 error for an article that does not exist', () => {
+    return request(app)
+    .get('/api/articles/999')
+    .expect(404).then(({body})=>{
+      expect(body.msg).toBe('Article does not exist')
+    })
+  })
+  test('GET 400: returns a 400 error for an invalid article ID', () => {
+    return request(app)
+    .get('/api/articles/nonsenseID')
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe('Bad Request')
+    })
+  })
+})
