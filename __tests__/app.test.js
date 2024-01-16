@@ -92,3 +92,43 @@ describe('api/articles/:article_id', () => {
     })
   })
 })
+
+describe('api/articles', () => {
+  test('GET 200: returns an array of all articles', () => {
+    return request(app)
+    .get('/api/articles')
+    .expect(200)
+    .then(({body}) => {
+      const articlesArray = body.articles;
+
+      expect(Array.isArray(articlesArray)).toBe(true)
+
+      articlesArray.forEach(article => {
+        expect(article).toHaveProperty('author')
+        expect(article).toHaveProperty('title')
+        expect(article).toHaveProperty('article_id')
+        expect(article).toHaveProperty('topic')
+        expect(article).toHaveProperty('created_at')  
+        expect(article).toHaveProperty('votes')
+        expect(article).toHaveProperty('article_img_url')
+        expect(article).toHaveProperty('comment_count')
+        expect(typeof article.comment_count).toBe('number')
+        expect(article).not.toHaveProperty('body')
+      })
+    })
+  })
+  test('GET 200: array is sorted by date in descendng order by default', () => {
+    return request(app)
+    .get('/api/articles')
+    .expect(200)
+    .then(({body}) => {
+      const articlesArray = body.articles;
+      expect(articlesArray).toBeSortedBy('created_at', {descending: true})
+    })
+  })
+  test('GET 404: returns a 404 error for a route that does not exist', () => {
+    return request(app)
+    .get('/api/notarticles')
+    .expect(404)
+  })
+})
