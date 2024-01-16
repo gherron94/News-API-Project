@@ -91,7 +91,65 @@ describe('api/articles/:article_id', () => {
       expect(body.msg).toBe('Bad Request')
     })
   })
-})
+  test('PATCH 200: updates article cost by id', () => {
+    const voteUpdate = {
+      inc_votes: - 10
+    };
+    return request(app)
+      .patch('/api/articles/1')
+      .send(voteUpdate)
+      .expect(200)
+      .then(({body}) => {
+        const patchedArticle = body.article
+
+        expect(patchedArticle.votes).toBe(90)
+        expect(patchedArticle.title).toBe('Living in the shadow of a great man')
+        expect(patchedArticle.author).toBe('butter_bridge')
+      })
+  })
+  test('PATCH 400: returns a 400 error for an empty patch object', () => {
+    return request(app)
+    .patch('/api/articles/1/')
+    .send({})
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe('Bad Request')
+    })
+  })
+  test('PATCH 400: returns a 400 error for an invalid patch object', () => {
+    return request(app)
+    .patch('/api/articles/2')
+    .send({
+      inc_votes: 'Strings are not valid here'
+    })
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe('Bad Request')
+    })
+  })
+  test('PATCH 400: returns a 400 error for a valid patch object but article id that does not exist', () => {
+      return request(app)
+      .patch('/api/articles/nonsense')
+      .send({
+        inc_votes: 20
+      })
+      .expect(400)
+      .then(({body})=>{
+        expect(body.msg).toBe('Bad Request')
+      })
+    })
+  })
+  test('PATCH 404: returns a 404 error for a valid patch object but an article id that doesnt exist', () => {
+    return request(app)
+    .patch('/api/articles/12222/')
+    .send({
+      inc_votes: 20
+    })
+    .expect(404)
+    .then(({body})=>{
+      expect(body.msg).toBe('Invalid article Id')
+    })
+  })
 
 describe('api/articles', () => {
   test('GET 200: returns an array of all articles', () => {
@@ -216,3 +274,4 @@ describe('api/articles/:article_id/comments', () => {
 
 
 })
+
