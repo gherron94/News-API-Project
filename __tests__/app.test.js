@@ -169,4 +169,50 @@ describe('api/articles/:article_id/comments', () => {
       expect(body.msg).toBe('Bad Request')
     })
   })
+  test('POST 201: adds a new comment', () => {
+    const newComment = {
+     username: 'icellusedkars',
+     body: 'I found this article very interesting!'
+    };
+    const articleID = 1;
+
+    return request(app)
+      .post(`/api/articles/${articleID}/comments`)
+      .send(newComment)
+      .expect(201)
+      .then(({body}) => {
+        const responseComment = body.comment
+  
+        expect(responseComment.author).toBe(newComment.username)
+        expect(responseComment.body).toBe(newComment.body)
+        expect(responseComment.article_id).toBe(articleID)
+        expect(responseComment.votes).toBe(0)
+
+        expect(responseComment).toHaveProperty('created_at')
+        expect(responseComment).toHaveProperty('comment_id')
+      })
+  })
+  test('POST 400: returns a 400 error for an empty post object', () => {
+    return request(app)
+    .post('/api/articles/1/comments')
+    .send({})
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe('Bad Request')
+    })
+  })
+  test('POST 400: returns a 400 error for an invalid post object', () => {
+    return request(app)
+    .post('/api/articles/1/comments')
+    .send({
+      username: 'Invalid username',
+      body: 'Valid Body'
+    })
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe('Bad Request')
+    })
+  })
+
+
 })
