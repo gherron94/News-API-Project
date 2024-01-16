@@ -84,5 +84,23 @@
     
           }
        }
-    }
+    },
+    "PATCH /api.articles/:article_id": {
+      "description": "patches an article by id",
+      "queries": [],
+      "parameters": ["article_id"],
+      "exampleResponse": {
+        "article": 
+        {
+          "title": "Who Will Manage Your Club in 2021?",
+          "topic": "football",
+          "author": "happyamy2016",
+          "body": "Text from the article..",
+          "created_at": "2018-05-30T15:59:13.341Z",
+          "votes": 2,
+          "votesPatched": "this value can be changed by a patch ",
+          "comment_count": 20
+        } 
+         }
+      }
 }
