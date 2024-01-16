@@ -132,3 +132,41 @@ describe('api/articles', () => {
     .expect(404)
   })
 })
+
+describe('api/articles/:article_id/comments', () => {
+  test('GET 200: returns an array of comments by article ID', () => {
+    return request(app)
+    .get(`/api/articles/9/comments`)
+    .expect(200).then(({body})=> {
+      const commentArray = body.comments
+
+      expect(Array.isArray(commentArray)).toBe(true) 
+
+      commentArray.forEach(comment => {
+        expect(comment).toHaveProperty('comment_id')
+        expect(comment).toHaveProperty('article_id')
+        expect(comment).toHaveProperty('body')
+        expect(comment).toHaveProperty('created_at')
+        expect(comment).toHaveProperty('author')
+        expect(comment).toHaveProperty('votes')
+      })
+
+      expect(commentArray).toBeSortedBy('created_at', {descending: false})
+    })
+  })
+  test('GET 404: returns a 404 error for an article id that does not exist', () => {
+    return request(app)
+    .get('/api/articles/999/comments')
+    .expect(404).then(({body})=>{
+      expect(body.msg).toBe('Article does not exist')
+    })
+  })
+  test('GET 400: returns a 400 error for an invalid article ID', () => {
+    return request(app)
+    .get('/api/articles/isnotavalidid/comments')
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe('Bad Request')
+    })
+  })
+})
