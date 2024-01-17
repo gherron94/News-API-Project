@@ -10,7 +10,7 @@ exports.findCommentsByArticleId = (article_id) => {
         status: 404,
         msg: 'Article does not exist'
       })
-    }
+    } 
     return rows
   })
 
@@ -31,6 +31,23 @@ exports.addComment = (article_id, newComment) => {
   })
 }
 
+
+exports.removeComment = (comment_id) => {
+
+   return db.query(`SELECT * FROM comments WHERE comment_id = $1;`, [comment_id]).then(({rows}) => {
+
+    if (rows.length === 0) {
+      return Promise.reject({
+        status: 404,
+        msg: 'Comment does not exist'
+      })
+    } 
+  
+    return db.query(`
+    DELETE FROM comments WHERE comment_id = $1`, [comment_id])
+  } )
+
+}
 
 
 
