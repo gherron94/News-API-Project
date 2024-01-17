@@ -4,6 +4,7 @@ const {getTopics} = require('./controllers/topics.controllers')
 const {getApis} = require('./controllers/api.controllers')
 const {getArticleById, getArticles, patchArticle} = require('./controllers/articles.controllers')
 const { getCommentsByArticleId, postComment, deleteComment } = require('./controllers/comments.controller');
+const { getUsers } = require('./controllers/users.controllers')
 const { pipeline } = require('supertest/lib/test');
 
 const app = express()
@@ -19,6 +20,8 @@ app.get('/api/articles/:article_id', getArticleById)
 app.get('/api/articles', getArticles)
 
 app.get('/api/articles/:article_id/comments', getCommentsByArticleId)
+
+app.get('/api/users', getUsers)
 
 app.post('/api/articles/:article_id/comments', postComment)
 
