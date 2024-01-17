@@ -6,9 +6,9 @@ exports.getArticleById = (req, res, next) => {
     res.status(200).send({article}) 
   }).catch(next)
 }
-
 exports.getArticles = (req, res, next) => {
-  findArticles().then((articles) => {
+  const { topic } = req.query
+  findArticles(topic).then((articles) => {
     res.status(200).send({articles}) 
   }).catch(next)
 }
