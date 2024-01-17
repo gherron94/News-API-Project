@@ -39,7 +39,7 @@
         "body": "Text from the article..",
         "created_at": "2018-05-30T15:59:13.341Z",
         "votes": 2,
-        "comment_count": 20
+        "comment_count": 4 
       } 
     }
   },
@@ -95,8 +95,7 @@
         "body": "Text from the article..",
         "created_at": "2018-05-30T15:59:13.341Z",
         "votes": 2,
-        "votesPatched": "this value can be changed by a patch ",
-        "comment_count": 20
+        "votesPatched": "this value can be changed by a patch "
       } 
         }
   },

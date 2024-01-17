@@ -76,6 +76,28 @@ describe('api/articles/:article_id', () => {
         expect(article).toHaveProperty('article_img_url')  
     })
   })
+  test('GET 200: returns an article object by article ID with comment_count of all comments', () => {
+    return request(app)
+    .get('/api/articles/1')
+    .expect(200).then(({body})=> {
+      const article = body.article 
+
+      expect(article).toHaveProperty('comment_count')
+      expect(article.comment_count).toBe(11)
+   
+    })
+  })
+  test('GET 200: returns an article object by article ID with comment_count of all comments when there are no comments', () => {
+    return request(app)
+    .get('/api/articles/2')
+    .expect(200).then(({body})=> {
+      const article = body.article 
+
+      expect(article).toHaveProperty('comment_count')
+      expect(article.comment_count).toBe(0)
+   
+    })
+  }) 
   test('GET 404: returns a 404 error for an article that does not exist', () => {
     return request(app)
     .get('/api/articles/999')
@@ -158,7 +180,7 @@ describe('api/articles', () => {
     .expect(200)
     .then(({body}) => {
       const articlesArray = body.articles;
-
+     
       expect(Array.isArray(articlesArray)).toBe(true)
 
       articlesArray.forEach(article => {
@@ -191,7 +213,7 @@ describe('api/articles', () => {
     .then(({body}) => {
       const articlesArray = body.articles;
 
-      expect(articlesArray.length).toBe(4)
+      expect(articlesArray.length).toBe(12)
 
       articlesArray.forEach(article => {
         expect(article.topic).toBe('mitch')
