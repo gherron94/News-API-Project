@@ -314,3 +314,28 @@ describe('api/comments/:comment_id', () => {
     })
   })
 })
+
+describe('api/users', () => {
+  test('GET 200: returns an array of all users', () => {
+    return request(app)
+    .get('/api/users')
+    .expect(200)
+    .then(({body}) => {
+      const responseUsersArray = body.users;
+      const originalDataUsersArray = testData.userData
+
+      expect(responseUsersArray).toEqual(originalDataUsersArray)
+
+      responseUsersArray.forEach(user => {
+        expect(user).toHaveProperty('username')
+        expect(user).toHaveProperty('name')
+        expect(user).toHaveProperty('avatar_url')
+      })
+    })
+  })
+  test('GET 404: returns a 404 error for a route that does not exist', () => {
+    return request(app)
+    .get('/api/nonsenseRoute')
+    .expect(404)
+  })
+})
