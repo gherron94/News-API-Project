@@ -184,6 +184,31 @@ describe('api/articles', () => {
       expect(articlesArray).toBeSortedBy('created_at', {descending: true})
     })
   })
+  test('GET 200: array is filtered by topic query', () => {
+    return request(app)
+    .get('/api/articles?topic=mitch')
+    .expect(200)
+    .then(({body}) => {
+      const articlesArray = body.articles;
+
+      expect(articlesArray.length).toBe(4)
+
+      articlesArray.forEach(article => {
+        expect(article.topic).toBe('mitch')
+      })
+
+      expect(articlesArray).toBeSortedBy('created_at', {descending: true})
+    })
+  })
+
+  test('GET 400: responds with an error message when passed an invalid topic query', () => {
+    return request(app)
+      .get('/api/articles?topic=notavalidtopic')
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toBe('Invalid topic query')
+      })
+  })
   test('GET 404: returns a 404 error for a route that does not exist', () => {
     return request(app)
     .get('/api/notarticles')
