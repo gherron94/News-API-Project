@@ -5,7 +5,6 @@ const {getApis} = require('./controllers/api.controllers')
 const {getArticleById, getArticles, patchArticle} = require('./controllers/articles.controllers')
 const { getCommentsByArticleId, postComment, deleteComment } = require('./controllers/comments.controller');
 const { getUsers } = require('./controllers/users.controllers')
-const { pipeline } = require('supertest/lib/test');
 
 const app = express()
 
