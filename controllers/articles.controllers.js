@@ -1,4 +1,5 @@
 const {findArticleById, findArticles, updateArticle} = require('../models/articles.models')
+const {checkTopicExists} = require('../check-exists')
 
 exports.getArticleById = (req, res, next) => {
   const {article_id} = req.params
@@ -6,9 +7,21 @@ exports.getArticleById = (req, res, next) => {
     res.status(200).send({article}) 
   }).catch(next)
 }
+
 exports.getArticles = (req, res, next) => {
   const { topic } = req.query
-  findArticles(topic).then((articles) => {
+  const findArticlesQuery =  findArticles(topic) ;
+
+  const queries = [findArticlesQuery]
+
+  if (topic) {
+    const checkTopicExistence = checkTopicExists(topic)
+    queries.push(checkTopicExistence)
+  }
+
+  Promise.all(queries)
+  .then((response) => {
+    const articles = response[0]
     res.status(200).send({articles}) 
   }).catch(next)
 }

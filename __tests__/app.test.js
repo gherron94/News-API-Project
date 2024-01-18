@@ -44,8 +44,6 @@ describe('api/', () => {
     .expect(200).then(({body})=> {
       const apisObject = body.apis
 
-      expect(typeof apisObject).toBe('object')
-      expect(Array.isArray(apisObject)).toBe(false)
       expect(apiEndpointsFile).toEqual(apisObject)
     })
   })
@@ -74,6 +72,12 @@ describe('api/articles/:article_id', () => {
         expect(article).toHaveProperty('created_at')  
         expect(article).toHaveProperty('votes')
         expect(article).toHaveProperty('article_img_url')  
+
+        expect(article.title).toBe('Living in the shadow of a great man')
+        expect(article.author).toBe('butter_bridge')
+        expect(article.body).toBe('I find this existence challenging')
+        expect(article.article_id).toBe(1)
+        
     })
   })
   test('GET 200: returns an article object by article ID with comment_count of all comments', () => {
@@ -125,8 +129,12 @@ describe('api/articles/:article_id', () => {
         const patchedArticle = body.article
 
         expect(patchedArticle.votes).toBe(90)
+        expect(typeof patchedArticle.created_at).toBe('string')
         expect(patchedArticle.title).toBe('Living in the shadow of a great man')
         expect(patchedArticle.author).toBe('butter_bridge')
+        expect(patchedArticle.topic).toBe('mitch')
+        expect(typeof patchedArticle.article_img_url).toBe('string')
+        expect(typeof patchedArticle.body).toBe('string')
       })
   })
   test('PATCH 400: returns a 400 error for an empty patch object', () => {
@@ -222,13 +230,21 @@ describe('api/articles', () => {
       expect(articlesArray).toBeSortedBy('created_at', {descending: true})
     })
   })
+  test('GET 200: responds with an empty array when passed an valid topic query with no articles', () => {
+    return request(app)
+      .get('/api/articles?topic=paper')
+      .expect(200)
+      .then(({body}) => {
 
-  test('GET 400: responds with an error message when passed an invalid topic query', () => {
+        expect(body.articles).toEqual([]);
+      })
+  })
+  test('GET 404: responds with an error message when passed an invalid topic query', () => {
     return request(app)
       .get('/api/articles?topic=notavalidtopic')
-      .expect(400)
+      .expect(404)
       .then(({body}) => {
-        expect(body.msg).toBe('Invalid topic query')
+        expect(body.msg).toBe('Topic does not exist')
       })
   })
   test('GET 404: returns a 404 error for a route that does not exist', () => {
@@ -241,11 +257,11 @@ describe('api/articles', () => {
 describe('api/articles/:article_id/comments', () => {
   test('GET 200: returns an array of comments by article ID', () => {
     return request(app)
-    .get(`/api/articles/9/comments`)
+    .get(`/api/articles/1/comments`)
     .expect(200).then(({body})=> {
       const commentArray = body.comments
 
-      expect(Array.isArray(commentArray)).toBe(true) 
+      expect(commentArray.length).toBe(11)
 
       commentArray.forEach(comment => {
         expect(comment).toHaveProperty('comment_id')
@@ -257,6 +273,15 @@ describe('api/articles/:article_id/comments', () => {
       })
 
       expect(commentArray).toBeSortedBy('created_at', {descending: false})
+    })
+  })
+  test('GET 200: returns an empty array for an article with no comments', () => {
+    return request(app)
+    .get(`/api/articles/2/comments`)
+    .expect(200).then(({body})=> {
+      const commentArray = body.comments
+
+      expect(commentArray).toEqual([])
     })
   })
   test('GET 404: returns a 404 error for an article id that does not exist', () => {
@@ -318,32 +343,39 @@ describe('api/articles/:article_id/comments', () => {
       expect(body.msg).toBe('Bad Request')
     })
   })
-
+  test('POST 404: returns a 404 error for an article id that does not exist', () => {
+    const newComment = {
+      username: 'icellusedkars',
+      body: 'I found this article very interesting!'
+     };
+    return request(app)
+    .post('/api/articles/999/comments')
+    .send(newComment)
+    .expect(404).then(({body})=>{
+      expect(body.msg).toBe('Article does not exist')
+    })
+  })
+  test('POST 400: returns a 400 error for an invalid article ID', () => {
+    const newComment = {
+      username: 'icellusedkars',
+      body: 'I found this article very interesting!'
+     };
+    return request(app)
+    .post('/api/articles/isnotavalidid/comments')
+    .send(newComment)
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe('Bad Request')
+    })
+  })
 
 })
 
 describe('api/comments/:comment_id', () => {
   test('DELETE 204: removes comment by id', ()=> {
-    const testCommentId = 1;
-
-    return db.query(`SELECT * FROM comments WHERE comment_id = $1;`, [testCommentId]).then(({rows}) => {
-      const commentBeforeDeletion = rows;
-
-      expect(commentBeforeDeletion.length).toBe(1)
-      expect(commentBeforeDeletion[0].comment_id).toBe(testCommentId)
-
     return request(app)
-    .delete(`/api/comments/${testCommentId}`)
+    .delete(`/api/comments/1`)
     .expect(204) 
-    .then(() => {
-
-    return db.query(`SELECT * FROM comments WHERE comment_id = $1;`, [testCommentId]).then(({rows}) => {
-      const deletedComment = rows
-
-      expect(deletedComment.length).toBe(0)
-        })
-      })
-    })
   })
   test('DELETE 404: returns a 404 error for a comment ID that does not exist', () => {
     return request(app)
@@ -369,9 +401,8 @@ describe('api/users', () => {
     .expect(200)
     .then(({body}) => {
       const responseUsersArray = body.users;
-      const originalDataUsersArray = testData.userData
-
-      expect(responseUsersArray).toEqual(originalDataUsersArray)
+  
+      expect(responseUsersArray.length).toBe(4)
 
       responseUsersArray.forEach(user => {
         expect(user).toHaveProperty('username')

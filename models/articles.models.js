@@ -20,8 +20,6 @@ exports.findArticleById = (article_id) => {
 
 exports.findArticles = (topic) => {
 
-  const validTopics = ['mitch', 'cats', 'paper']
-
   const queryParams = [];
 
   let queryStr = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, article_img_url, COUNT(comments.article_id)::INT AS comment_count
@@ -30,10 +28,6 @@ exports.findArticles = (topic) => {
   ON (articles.article_id = comments.article_id)`
 
   if (topic) {
-    if (!validTopics.includes(topic)) {
-      return Promise.reject({ status: 400, msg: 'Invalid topic query' });
-    }
-
     queryStr+= ` WHERE topic = $1`;
     queryParams.push(topic);
   }
