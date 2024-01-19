@@ -1,4 +1,4 @@
-const {findArticleById, findArticles, updateArticle, findCommentsByArticleId, addComment} = require('../models/articles.models')
+const {findArticleById, findArticles, updateArticle, findCommentsByArticleId, addComment, addArticle} = require('../models/articles.models')
 const {checkTopicExists} = require('../check-exists')
 
 exports.getArticleById = (req, res, next) => {
@@ -52,3 +52,13 @@ exports.postComment = (req, res, next) => {
       res.status(201).send({ comment })
   }).catch(next)
 }
+
+exports.postArticle = (req, res, next) => {
+
+  const newArticle  = req.body
+
+  addArticle(newArticle).then((article) => {
+      res.status(201).send({ article })
+  }).catch(next)
+}
+

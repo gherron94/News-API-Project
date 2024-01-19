@@ -127,3 +127,28 @@ exports.addComment = (article_id, newComment) => {
 })
 }
 
+exports.addArticle = (newArticle) => {
+
+  const { author, title, body, topic } = newArticle
+
+    return db.query(`
+    INSERT INTO articles 
+    (author, title, body, topic)
+    VALUES
+    ($1, $2, $3, $4)
+    RETURNING *;
+    `, [author, title, body, topic]).then(() => {
+
+      return db.query( `
+      SELECT articles.*, COUNT(comments.article_id)::INT AS comment_count
+      FROM articles
+      LEFT JOIN comments
+      ON (articles.article_id = comments.article_id)
+      WHERE articles.body = $1
+      GROUP BY articles.article_id`,[body]).then(({rows}) => {
+        return rows[0]
+     })
+  })
+
+}
+
