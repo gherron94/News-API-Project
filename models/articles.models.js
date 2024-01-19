@@ -18,14 +18,24 @@ exports.findArticleById = (article_id) => {
   })
 }
 
-exports.findArticles = (topic) => {
+exports.findArticles = (sort_by = 'created_at', order = 'desc', topic) => {
 
-  const queryParams = [];
+  const validSortQueries = ['author', 'title', 'comment_count', 'created_at', 'votes', 'article_image_url, topic']
+
+  if (!validSortQueries.includes(sort_by)) {
+    return Promise.reject({status: 400, msg: 'Invalid sort query'})
+  }
+
+  if (!['asc', 'desc'].includes(order)) {
+    return Promise.reject({status: 400, msg: 'Invalid order query'})
+  }
 
   let queryStr = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, article_img_url, COUNT(comments.article_id)::INT AS comment_count
   FROM articles
   LEFT JOIN comments
   ON (articles.article_id = comments.article_id)`
+
+  const queryParams = [];
 
   if (topic) {
     queryStr+= ` WHERE topic = $1`;
@@ -33,7 +43,7 @@ exports.findArticles = (topic) => {
   }
 
   queryStr+= ` GROUP BY articles.article_id
-  ORDER BY articles.created_at DESC
+  ORDER BY ${sort_by} ${order}
   ;`
 
   return db.query(
