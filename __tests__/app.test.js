@@ -455,4 +455,27 @@ describe('api/users', () => {
     .get('/api/nonsenseRoute')
     .expect(404)
   })
-})
+}) 
+
+describe('api/users/:username', () => {
+  test('GET 200: returns a user object by username', () => {
+    return request(app)
+    .get('/api/users/lurker')
+    .expect(200)
+    .then(({body}) => {
+      const userObject = body.user;
+
+        expect(userObject.username).toBe('lurker')
+        expect(userObject.name).toBe('do_nothing')
+        expect(typeof userObject.avatar_url).toBe('string')
+    })
+  })
+  test('GET 404: returns a 404 error for username that does not exist', () => {
+    return request(app)
+    .get('/api/users/doesnotexist')
+    .expect(404)
+    .then(({body}) => {
+      expect(body.msg).toBe('Username does not exist')
+    })
+  })
+}) 
