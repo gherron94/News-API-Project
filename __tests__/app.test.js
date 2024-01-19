@@ -291,6 +291,54 @@ describe('api/articles', () => {
     .get('/api/notarticles')
     .expect(404)
   })
+  test('POST 201: adds a new article', () => {
+    const newArticle = {
+     author: 'icellusedkars',
+     title: 'Posting a new article',
+     body: 'This is a test for posting a new article',
+     topic: 'mitch',
+    }
+
+    return request(app)
+      .post(`/api/articles`)
+      .send(newArticle)
+      .expect(201)
+      .then(({body}) => {
+        const reponseArticle = body.article
+  
+        expect(reponseArticle.author).toBe(newArticle.author)
+        expect(reponseArticle.body).toBe(newArticle.body)
+        expect(reponseArticle.topic).toBe(newArticle.topic)
+        expect(reponseArticle.votes).toBe(0)
+        expect(typeof reponseArticle.created_at).toBe('string')
+        expect(typeof reponseArticle.article_img_url).toBe('string')
+        expect(typeof reponseArticle.article_id).toBe('number')
+        expect(reponseArticle.comment_count).toBe(0)
+      })
+  })
+  test('POST 400: returns a 400 error for an empty post object', () => {
+    return request(app)
+    .post('/api/articles')
+    .send({})
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe('Bad Request')
+    })
+  })
+  test('POST 400: returns a 400 error for an invalid post object', () => {
+    return request(app)
+    .post('/api/articles')
+    .send({
+      author: 1,
+      title: 39,
+      body: 'This is a test for posting an invalid new article',
+      topic: 'none',
+     })
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe('Bad Request')
+    })
+  })
 })
 
 describe('api/articles/:article_id/comments', () => {
