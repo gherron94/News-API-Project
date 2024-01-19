@@ -9,12 +9,12 @@ exports.getArticleById = (req, res, next) => {
 }
 
 exports.getArticles = (req, res, next) => {
-  const { topic } = req.query
-  const findArticlesQuery =  findArticles(topic) ;
+  const { sort_by, order, topic } = req.query
+  const findArticlesQuery =  findArticles(sort_by, order,  topic) ;
 
   const queries = [findArticlesQuery]
 
-  if (topic) {
+  if (topic) { 
     const checkTopicExistence = checkTopicExists(topic)
     queries.push(checkTopicExistence)
   }

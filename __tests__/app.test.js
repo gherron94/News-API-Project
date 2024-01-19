@@ -239,6 +239,45 @@ describe('api/articles', () => {
         expect(body.articles).toEqual([]);
       })
   })
+  test('GET 200: array is sorted by the sort_by query ', () => {
+    return request(app)
+      .get('/api/articles?sort_by=author')
+      .expect(200)
+      .then(({body}) => {
+        const articlesArray = body.articles;
+
+        expect(articlesArray).toBeSortedBy('author', {
+          descending: true
+        })
+      })
+  })
+  test('GET 200: array is sorted by the default sort_by query of created_at in ascending order ', () => {
+    return request(app)
+    .get('/api/articles?order=asc')
+    .expect(200)
+    .then(({body}) => {
+      const articlesArray = body.articles;
+      expect(articlesArray).toBeSortedBy('created_at', {descending: false})
+    })
+  })
+  test('GET 400: returns an error for an invalid sort_by query ', () => {
+    return request(app)
+      .get('/api/articles?sort_by=invalid')
+      .expect(400)
+      .then(({body}) => {
+  
+        expect(body.msg).toBe('Invalid sort query')
+      })
+  })
+  test('GET 400: returns an error for an invalid order query ', () => {
+    return request(app)
+      .get('/api/articles?order=invalid')
+      .expect(400)
+      .then(({body}) => {
+  
+        expect(body.msg).toBe('Invalid order query')
+      })
+  })
   test('GET 404: responds with an error message when passed an invalid topic query', () => {
     return request(app)
       .get('/api/articles?topic=notavalidtopic')
