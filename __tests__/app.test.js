@@ -117,7 +117,7 @@ describe('api/articles/:article_id', () => {
       expect(body.msg).toBe('Bad Request')
     })
   })
-  test('PATCH 200: updates article cost by id', () => {
+  test('PATCH 200: updates article votes by id', () => {
     const voteUpdate = {
       inc_votes: - 10
     };
@@ -429,6 +429,66 @@ describe('api/comments/:comment_id', () => {
     .expect(400)
     .then(({body})=>{
       expect(body.msg).toBe('Bad Request')
+    })
+  })
+  test('PATCH 200: updates comment votes by id', () => {
+    const voteUpdate = {
+      inc_votes: + 10
+    };
+    return request(app)
+      .patch('/api/comments/1')
+      .send(voteUpdate)
+      .expect(200)
+      .then(({body}) => {
+        const patchedComment = body.comment
+
+        expect(patchedComment.votes).toBe(26)
+        expect(typeof patchedComment.created_at).toBe('string')
+        expect(patchedComment.article_id).toBe(9)
+        expect(patchedComment.author).toBe('butter_bridge')
+        expect(typeof patchedComment.body).toBe('string')
+      })
+  })
+  test('PATCH 400: returns a 400 error for an empty patch object', () => {
+    return request(app)
+    .patch('/api/comments/1/')
+    .send({})
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe('Bad Request')
+    })
+  })
+  test('PATCH 400: returns a 400 error for an invalid patch object', () => {
+    return request(app)
+    .patch('/api/comments/2')
+    .send({
+      inc_votes: 'Strings are not valid here'
+    })
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe('Bad Request')
+    })
+  })
+  test('PATCH 400: returns a 400 error for a valid patch object invalid comment Id', () => {
+      return request(app)
+      .patch('/api/comments/nonsense')
+      .send({
+        inc_votes: 20
+      })
+      .expect(400)
+      .then(({body})=>{
+        expect(body.msg).toBe('Bad Request')
+      })
+    })
+  test('PATCH 404: returns a 404 error for a valid patch object but an article id that doesnt exist', () => {
+    return request(app)
+    .patch('/api/comments/12222/')
+    .send({
+      inc_votes: 20
+    })
+    .expect(404)
+    .then(({body})=>{
+      expect(body.msg).toBe('Comment does not exist')
     })
   })
 })
