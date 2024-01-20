@@ -1,6 +1,5 @@
-const {findArticleById, findArticles, updateArticle, findCommentsByArticleId, addComment, addArticle} = require('../models/articles.models')
+const {findArticleById, findArticles, updateArticle, findCommentsByArticleId, addComment, addArticle, removeArticle} = require('../models/articles.models')
 const {checkTopicExists} = require('../check-exists')
-const { response } = require('../app')
 
 exports.getArticleById = (req, res, next) => {
   const {article_id} = req.params
@@ -69,3 +68,10 @@ exports.postArticle = (req, res, next) => {
   }).catch(next)
 }
 
+exports.deleteArticle = (req, res, next) => {
+
+  const { article_id } = req.params
+  
+  removeArticle(article_id).then(() => {res.status(204).send()
+  }).catch(next)
+}

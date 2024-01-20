@@ -217,6 +217,26 @@ describe('api/articles/:article_id', () => {
       expect(body.msg).toBe('Invalid article Id')
     })
   })
+  test('DELETE 204: removes article by id', ()=> {
+    return request(app)
+    .delete(`/api/articles/1`)
+    .expect(204) 
+  })
+  test('DELETE 404: returns a 404 error for a article ID that does not exist', () => {
+    return request(app)
+    .delete('/api/articles/1000')
+    .expect(404).then(({body})=>{
+      expect(body.msg).toBe('Article does not exist')
+    })
+  })
+  test('DELETE 400: returns a 400 error for an invalid article ID', () => {
+    return request(app)
+    .delete('/api/articles/fakeComment')
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe('Bad Request')
+    })
+  })
 })
 
 describe('api/articles', () => {

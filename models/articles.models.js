@@ -187,3 +187,22 @@ exports.addArticle = (newArticle) => {
 
 }
 
+exports.removeArticle = (article_id) => {
+
+  return db.query(`SELECT * FROM articles WHERE article_id = $1;`,[article_id]).then(({rows}) => {
+
+   if (rows.length === 0) {
+     return Promise.reject({
+       status: 404,
+       msg: 'Article does not exist'
+     })
+   } 
+ 
+   return db.query(`
+   DELETE FROM comments WHERE article_id = $1 
+   RETURNING *`, [article_id])
+ }).then(() => {
+  return db.query(`DELETE FROM articles WHERE article_id = $1`,[article_id])
+ })
+
+}
