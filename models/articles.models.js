@@ -18,7 +18,7 @@ exports.findArticleById = (article_id) => {
   })
 }
 
-exports.findArticles = (sort_by = 'created_at', order = 'desc', topic) => {
+exports.findArticles = (sort_by = 'created_at', order = 'desc', limit = 10, p = 1, topic) => {
 
   const validSortQueries = ['author', 'title', 'comment_count', 'created_at', 'votes', 'article_image_url, topic']
 
@@ -30,7 +30,8 @@ exports.findArticles = (sort_by = 'created_at', order = 'desc', topic) => {
     return Promise.reject({status: 400, msg: 'Invalid order query'})
   }
 
-  let queryStr = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, article_img_url, COUNT(comments.article_id)::INT AS comment_count
+  
+  let queryStr = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, article_img_url, COUNT(comments.article_id)::INT AS comment_count, COUNT(*) OVER ()::INT AS total_count
   FROM articles
   LEFT JOIN comments
   ON (articles.article_id = comments.article_id)`
@@ -43,14 +44,25 @@ exports.findArticles = (sort_by = 'created_at', order = 'desc', topic) => {
   }
 
   queryStr+= ` GROUP BY articles.article_id
-  ORDER BY ${sort_by} ${order}
+  ORDER BY ${sort_by} ${order}  
+  LIMIT ${limit}
+  OFFSET ${limit} * ${p - 1}
   ;`
 
   return db.query(
   queryStr, queryParams).then(({rows}) => {
-    return rows
+
+    if (rows.length === 0) {
+      return [rows]
+    }
+    const total_count = rows[0].total_count
+
+    rows.forEach(row => {
+      delete row.total_count;
   })
 
+    return [rows, total_count]
+  })
 }
  
 exports.updateArticle = (updatedvoteCount, article_id) => {
