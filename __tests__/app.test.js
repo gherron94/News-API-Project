@@ -390,8 +390,9 @@ describe('api/articles/:article_id/comments', () => {
     .get(`/api/articles/1/comments`)
     .expect(200).then(({body})=> {
       const commentArray = body.comments
+      const totalCommentsArrayLength = body.total_count
 
-      expect(commentArray.length).toBe(11)
+      expect(totalCommentsArrayLength).toBe(11)
 
       commentArray.forEach(comment => {
         expect(comment).toHaveProperty('comment_id')
@@ -413,6 +414,48 @@ describe('api/articles/:article_id/comments', () => {
 
       expect(commentArray).toEqual([])
     })
+  })
+  test('GET 200: comment array is filtered by page', () => {
+    return request(app)
+    .get('/api/articles/1/comments?p=2')
+    .expect(200)
+    .then(({body}) => {
+      const returnedCommentsArray = body.comments;
+      const totalCommentsLength = body.total_count;
+  
+      expect(totalCommentsLength).toBe(11)
+      expect(returnedCommentsArray.length).toBe(1)
+    })
+  })
+  test('GET 200: array is filtered by limit', () => {
+    return request(app)
+    .get('/api/articles/1/comments?limit=5')
+    .expect(200)
+    .then(({body}) => {
+      const returnedCommentsArray = body.comments;
+      const totalCommentsLength = body.total_count;
+  
+      expect(totalCommentsLength).toBe(11)
+      expect(returnedCommentsArray.length).toBe(5)
+    })
+  })
+  test('GET 400: returns an error for an invalid limit query ', () => {
+    return request(app)
+      .get('/api/articles/1/comments?limit=invalid')
+      .expect(400)
+      .then(({body}) => {
+  
+        expect(body.msg).toBe('Bad Request')
+      })
+  })
+  test('GET 400: returns an error for an invalid page query ', () => {
+    return request(app)
+      .get('/api/articles/3/comments?p=invalid')
+      .expect(400)
+      .then(({body}) => {
+  
+        expect(body.msg).toBe('Bad Request')
+      })
   })
   test('GET 404: returns a 404 error for an article id that does not exist', () => {
     return request(app)

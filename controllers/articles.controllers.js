@@ -1,5 +1,6 @@
 const {findArticleById, findArticles, updateArticle, findCommentsByArticleId, addComment, addArticle} = require('../models/articles.models')
 const {checkTopicExists} = require('../check-exists')
+const { response } = require('../app')
 
 exports.getArticleById = (req, res, next) => {
   const {article_id} = req.params
@@ -39,9 +40,13 @@ exports.patchArticle = (req, res, next) => {
 
 exports.getCommentsByArticleId = (req, res, next) => {
   const {article_id} = req.params;
+  const {limit, p} = req.query
 
-  findCommentsByArticleId(article_id).then(comments => {
-    res.status(200).send({comments})
+  findCommentsByArticleId(article_id, limit, p).then(response => {
+    const comments = response[0]
+    const total_count = response[1]
+  
+    res.status(200).send({comments, total_count}) 
   }).catch(next)
 }
 

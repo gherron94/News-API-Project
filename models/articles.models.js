@@ -18,7 +18,7 @@ exports.findArticleById = (article_id) => {
   })
 }
 
-exports.findArticles = (sort_by = 'created_at', order = 'desc', limit = 10, p = 1, topic) => {
+exports.findArticles = (sort_by = 'created_at', order = 'desc', limit = 10, p, topic) => {
 
   const validSortQueries = ['author', 'title', 'comment_count', 'created_at', 'votes', 'article_image_url, topic']
 
@@ -45,10 +45,12 @@ exports.findArticles = (sort_by = 'created_at', order = 'desc', limit = 10, p = 
 
   queryStr+= ` GROUP BY articles.article_id
   ORDER BY ${sort_by} ${order}  
-  LIMIT ${limit}
-  OFFSET ${limit} * ${p - 1}
-  ;`
+  LIMIT ${limit}`
 
+  if (p) {
+    queryStr+= ` OFFSET ${limit} * ${p - 1}`;;
+  }
+  
   return db.query(
   queryStr, queryParams).then(({rows}) => {
 
@@ -87,29 +89,50 @@ exports.updateArticle = (updatedvoteCount, article_id) => {
   })
 }
 
-exports.findCommentsByArticleId = (article_id) => {
+exports.findCommentsByArticleId = (article_id, limit = 10, p) => {
 
-  return db.query(`SELECT 
-  * FROM comments 
-  WHERE article_id = $1
-  ORDER BY created_at ASC`, [article_id]).then(({rows}) => {
-    const comment = rows
+  let queryStr = `SELECT 
+  *, COUNT(*) OVER ()::INT AS total_count
+  FROM comments`
+
+  const queryParams = [];
+
+  queryStr+= ` WHERE article_id = $1`
+  queryParams.push(article_id)
+
+  queryStr+= ` ORDER BY created_at ASC
+  LIMIT ${limit}`
+
+  if (p) {
+    queryStr+= ` OFFSET ${limit} * ${p - 1}`;
+  }
+
+  return db.query(
+    queryStr, queryParams).then(({rows})=> {
+      const comments = rows
+
+      if (!comments.length) {
+        return db.query(`SELECT * FROM articles where article_id = $1`, [article_id]).then(({rows}) => {
+          if (rows.length === 0) {
+            return Promise.reject({
+              status: 404,
+              msg: 'Article does not exist'
+            })
+          } else {
+            return [comments]
+          }
+        })
+      }
+
+    const total_count = comments[0].total_count
   
-    if (!comment.length) {
-      return db.query(`SELECT * FROM articles where article_id = $1`, [article_id]).then(({rows}) => {
-        if (rows.length === 0) {
-          return Promise.reject({
-            status: 404,
-            msg: 'Article does not exist'
-          })
-        } else {
-          return comment
-        }
-      })
-    }
+    comments.forEach(comment => {
+      delete comment.total_count;
+  })
   
-  return comment
-})
+    return [comments, total_count]
+  })
+
 }
 
 exports.addComment = (article_id, newComment) => {
