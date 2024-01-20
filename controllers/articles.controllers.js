@@ -9,8 +9,8 @@ exports.getArticleById = (req, res, next) => {
 }
 
 exports.getArticles = (req, res, next) => {
-  const { sort_by, order, topic } = req.query
-  const findArticlesQuery =  findArticles(sort_by, order,  topic) ;
+  const { sort_by, order, limit, p, topic } = req.query
+  const findArticlesQuery =  findArticles(sort_by, order, limit, p, topic) ;
 
   const queries = [findArticlesQuery]
 
@@ -20,9 +20,11 @@ exports.getArticles = (req, res, next) => {
   }
 
   Promise.all(queries)
-  .then((response) => {
+  .then(([response]) => {
     const articles = response[0]
-    res.status(200).send({articles}) 
+    const total_count = response[1]
+
+    res.status(200).send({articles, total_count}) 
   }).catch(next)
 }
 

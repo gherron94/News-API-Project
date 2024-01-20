@@ -188,7 +188,7 @@ describe('api/articles', () => {
     .expect(200)
     .then(({body}) => {
       const articlesArray = body.articles;
-     
+         
       expect(Array.isArray(articlesArray)).toBe(true)
 
       articlesArray.forEach(article => {
@@ -219,15 +219,16 @@ describe('api/articles', () => {
     .get('/api/articles?topic=mitch')
     .expect(200)
     .then(({body}) => {
-      const articlesArray = body.articles;
+      const responseArticlesArray = body.articles;
+      const totalArrayLength = body.total_count
 
-      expect(articlesArray.length).toBe(12)
+      expect(totalArrayLength).toBe(12)
 
-      articlesArray.forEach(article => {
+      responseArticlesArray.forEach(article => {
         expect(article.topic).toBe('mitch')
       })
 
-      expect(articlesArray).toBeSortedBy('created_at', {descending: true})
+      expect(responseArticlesArray).toBeSortedBy('created_at', {descending: true})
     })
   })
   test('GET 200: responds with an empty array when passed an valid topic query with no articles', () => {
@@ -235,7 +236,7 @@ describe('api/articles', () => {
       .get('/api/articles?topic=paper')
       .expect(200)
       .then(({body}) => {
-
+   
         expect(body.articles).toEqual([]);
       })
   })
@@ -259,6 +260,48 @@ describe('api/articles', () => {
       const articlesArray = body.articles;
       expect(articlesArray).toBeSortedBy('created_at', {descending: false})
     })
+  })
+  test('GET 200: array is filtered by page', () => {
+    return request(app)
+    .get('/api/articles?p=2')
+    .expect(200)
+    .then(({body}) => {
+      const articlesPageArray = body.articles;
+      const totalArticlesArrayLength = body.total_count;
+  
+      expect(totalArticlesArrayLength).toBe(13)
+      expect(articlesPageArray.length).toBe(3)
+    })
+  })
+  test('GET 200: array is filtered by limit', () => {
+    return request(app)
+    .get('/api/articles?limit=5')
+    .expect(200)
+    .then(({body}) => {
+      const articleArray = body.articles;
+      const totalArticlesArrayLength = body.total_count;
+  
+      expect(totalArticlesArrayLength).toBe(13)
+      expect(articleArray.length).toBe(5)
+    })
+  })
+  test('GET 400: returns an error for an invalid limit query ', () => {
+    return request(app)
+      .get('/api/articles?limit=invalid')
+      .expect(400)
+      .then(({body}) => {
+  
+        expect(body.msg).toBe('Bad Request')
+      })
+  })
+  test('GET 400: returns an error for an invalid page query ', () => {
+    return request(app)
+      .get('/api/articles?p=invalid')
+      .expect(400)
+      .then(({body}) => {
+  
+        expect(body.msg).toBe('Bad Request')
+      })
   })
   test('GET 400: returns an error for an invalid sort_by query ', () => {
     return request(app)
@@ -587,3 +630,4 @@ describe('api/users/:username', () => {
     })
   })
 }) 
+
