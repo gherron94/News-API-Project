@@ -30,6 +30,44 @@ describe('api/topics', () => {
       })
     })
   })
+  test('POST 201: adds a new topic', () => {
+    const newTopic = {
+      slug: "Baketball",
+      description: "Topic about basketball"
+    }
+
+    return request(app)
+      .post(`/api/topics`)
+      .send(newTopic)
+      .expect(201)
+      .then(({body}) => {
+        const responseTopic = body.topic
+  
+        expect(responseTopic.slug).toBe(newTopic.slug)
+        expect(responseTopic.description).toBe(newTopic.description)
+      })
+  })
+  test('POST 400: returns a 400 error for an empty post object', () => {
+    return request(app)
+    .post('/api/topics')
+    .send({})
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe('Bad Request')
+    })
+  })
+  test('POST 400: returns a 400 error for an invalid post object', () => {
+    return request(app)
+    .post('/api/topics')
+    .send({
+      notSlug: 12345,
+      notDescription: 'This is a test for posting an invalid new topic',
+     })
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe('Bad Request')
+    })
+  })
   test('GET 404: returns a 404 error for a route that does not exist', () => {
     return request(app)
     .get('/api/nonsense')
