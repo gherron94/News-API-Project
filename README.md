@@ -8,17 +8,23 @@ The following endpoints are currently available on this API:
 GET /api
 
 GET /api/topics
+POST /api/topics
 
 GET /api/users
+GET /ap/users/:username
 
 GET /api/articles
+POST /api/articles
 
 GET /api/articles/:article_id
 PATCH /api/articles/:article_id
+DELETE /api/articles/:article_id
 
 GET /api/articles/:article_id/comments
 POST /api/articles/:article_id/comments
-DELETE /api/comments/comments
+PATCH /api/comments/:comment_id
+DELETE /api/comments/:comment_id
+
 ```
 
 Here is a link to the hosted version:
