@@ -94,21 +94,20 @@
         "author": "happyamy2016",
         "body": "Text from the article..",
         "created_at": "2018-05-30T15:59:13.341Z",
-        "votes": 2,
-        "votesPatched": "this value can be changed by a patch "
+        "votes": 29
       } 
         }
   },
-    "DELETE /api/comments/comments": {
-      "description": "deletes a comment by ID",
-      "queries": [],
-      "parameters": ["comment_id"],
-      "exampleResponse": "For this endpoint no body will be be sent in the response. The comment will be selected by the provided comment ID and deleted from the database"
+  "DELETE /api/comments/comments": {
+    "description": "deletes a comment by ID",
+    "queries": [],
+    "parameters": ["comment_id"],
+    "exampleResponse": "For this endpoint no body will be be sent in the response. The comment will be selected by the provided comment ID and deleted from the database"
   }, 
-    "GET /api/users": {
-      "description": "serves an array of all users",
-      "queries": [],
-      "exampleResponse": {
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "queries": [],
+    "exampleResponse": {
     "topics": [{
       "username": "lurker",
       "name": "do_nothing",
@@ -116,22 +115,61 @@
       "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png"
       }]
     }
+  }, 
+  "POST /api/topics": {
+    "description": "adds a new topic",
+    "queries": [],
+    "exampleResponse": {
+       "slug": "basketball", "description": "Footie!" 
+    }
   },
-  "GET /api/articles?topic=...": {
-    "description": "serves an array of all articles filtered by topic",
-    "queries": ["topic"],
-    "exampleResponse (when filtered by cats)" : {
-      "articles": [
-        {
-          "title": "UNCOVERED: catspiracy to bring down democracy",
-          "topic": "cats",
-          "author": "weegembump",
-          "body": "Bastet walks amongst us, and the cats are taking arms!",
-          "created_at": "2020-08-03T13:14:00.000Z",
-          "votes": 0,
-          "comment_count": 2
-        }
-      ]
+  "DELETE /api/article/:article_id": {
+    "description": "deletes an article and all associated comments by article by ID",
+    "queries": [],
+    "parameters": ["article_id"],
+    "exampleResponse": "For this endpoint no body will be be sent in the response. The artile will be selected by the provided article ID and deleted from the database, along with any comments for this article"
+  },
+  "PATCH /api/comments/:comment_id": {
+    "description": "patches an comment by id",
+    "queries": [],
+    "parameters": ["comment_id"],
+    "exampleResponse": {
+    "comment": 
+      {
+        "comment_id": 17,
+        "body": "The owls are not what they seem.",
+        "author": "icellusedkars",
+        "votes": 30,
+        "created_at": "2020-03-14T17:02:00.000Z"
+      }
+    }
+  },
+  "GET /api/users/:username": {
+    "description": "serves a user object by username",
+    "queries": [],
+    "parameters": ["username"],
+    "exampleResponse": {
+    "topics": {
+      "username": "lurker",
+      "name": "do_nothing",
+      "avatar_url":
+      "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png"
+      }
+    }
+  },
+  "POST /api/articles/": {
+    "description": "posts a new article",
+    "queries": [],
+    "exampleResponse": {
+      "article": 
+      {
+        "title": "A new article",
+        "topic": "football",
+        "author": "happyamy2016",
+        "body": "Text from the article..",
+        "created_at": "2018-05-30T15:59:13.341Z",
+        "votes": 0
+      } 
     }
   }
 }
